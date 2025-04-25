@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Blender autosaves / temp
+*.blend1
+*.blend2
+*.blend@*
+
+# OS files
+.DS_Store
+Thumbs.db

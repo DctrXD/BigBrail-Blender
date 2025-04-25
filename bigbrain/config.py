@@ -1,22 +1,29 @@
 # =============================================================================
-# Infinite Undo - Configuration Logic
-# Author: github@DctrXD
-# Summary: Applies undo settings based on user preferences.
+# BigBrain — Configuration Logic
+# Applies undo settings reading from preferences.edit
 # =============================================================================
 
 import bpy
 
 def apply_undo_settings():
-    # Applies the user's undo config from addon preferences
-    # Aplica as configurações de desfazer definidas pelo usuário
+    """🇬🇧 Safely apply undo settings. 🇧🇷 Aplica desfazer com segurança."""
+    prefs = bpy.context.preferences.edit
     addon_prefs = bpy.context.preferences.addons[__package__].preferences
-    prefs = bpy.context.preferences.system
 
-    prefs.undo_steps = addon_prefs.undo_steps
-    prefs.undo_memory_limit = addon_prefs.undo_memory_limit
+    # Undo Steps
+    try:
+        prefs.undo_steps = addon_prefs.undo_steps
+    except Exception as e:
+        print(f"[BigBrain] Could not set undo_steps: {e}")
+
+    # Undo Memory Limit
+    try:
+        prefs.undo_memory_limit = addon_prefs.undo_memory_limit
+    except Exception as e:
+        print(f"[BigBrain] Could not set undo_memory_limit: {e}")
 
 def register():
-    pass  # Nothing to register here yet
+    pass  # no-op
 
 def unregister():
     pass

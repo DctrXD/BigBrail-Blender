@@ -1,41 +1,35 @@
 # =============================================================================
-# Infinite Undo - User Preferences UI
-# Author: github@DctrXD
-# Summary: Creates a panel in Blender preferences to edit undo behavior.
+# BigBrain — Preferences UI
+# Provides settings panel in Blender Preferences > Add-ons
 # =============================================================================
 
 import bpy
 
-class InfiniteUndoPreferences(bpy.types.AddonPreferences):
+class BigBrainPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
-    # Number of undo steps (higher = deeper history)
-    # Número de passos de desfazer (quanto maior, mais histórico)
     undo_steps: bpy.props.IntProperty(
         name="Undo Steps",
-        description="Total undo levels (Ctrl+Z steps)",
-        default=512,
-        min=32,
-        max=10000
+        description="How many Ctrl+Z steps (min 32, max 10000)",
+        default=512, min=32, max=10000
     )
-
-    # Memory limit for undo in MB (0 = unlimited)
-    # Limite de memória para desfazer em MB (0 = ilimitado)
     undo_memory_limit: bpy.props.IntProperty(
         name="Undo Memory Limit (MB)",
-        description="Max memory usage for undo system",
-        default=0,
-        min=0
+        description="Max RAM for undo system (0 = unlimited)",
+        default=0, min=0
     )
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text="Infinite Undo Settings", icon='RECOVER_AUTO')
+        layout.label(text="BigBrain Undo Settings", icon='RECOVER_AUTO')
         layout.prop(self, "undo_steps")
         layout.prop(self, "undo_memory_limit")
+        # Show Blender version
+        version = bpy.app.version_string
+        layout.label(text=f"Blender {version} detected")
 
 def register():
-    bpy.utils.register_class(InfiniteUndoPreferences)
+    bpy.utils.register_class(BigBrainPreferences)
 
 def unregister():
-    bpy.utils.unregister_class(InfiniteUndoPreferences)
+    bpy.utils.unregister_class(BigBrainPreferences)
