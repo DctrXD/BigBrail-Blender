@@ -1,6 +1,5 @@
 # =============================================================================
-# BigBrain — Preferences UI
-# Multilanguage, conflict warnings, reset button & version check.
+# Preferences UI: undo settings, i18n, version warning, conflict list, reset button
 # =============================================================================
 
 import bpy
@@ -11,7 +10,7 @@ TEXTS = {
         'title': "BigBrain Settings",
         'undo_steps': "Undo Steps",
         'undo_memory': "Undo Memory Limit (MB)",
-        'version_warn': "⚠️ Blender version <2.93 may not be supported",
+        'version_warn': "⚠️ Blender <2.93 may not be supported",
         'conflict_warn': "⚠️ Conflicting addons detected:",
         'reset': "Reset to Default",
         'lang': "Language",
@@ -55,26 +54,25 @@ class BigBrainPreferences(bpy.types.AddonPreferences):
         t = TEXTS[self.language]
         layout = self.layout
 
-        # Title
         layout.label(text=t['title'], icon='RECOVER_AUTO')
 
-        # Blender version check
         if bpy.app.version < (2, 93, 0):
             layout.label(text=t['version_warn'], icon='ERROR')
 
-        # Language selector
         layout.prop(self, "language", text=t['lang'])
-
-        # Undo settings
         layout.prop(self, "undo_steps", text=t['undo_steps'])
         layout.prop(self, "undo_memory_limit", text=t['undo_memory'])
 
-        # Conflict warnings
         if utils.conflicts:
             layout.label(text=t['conflict_warn'], icon='ERROR')
             for c in utils.conflicts:
                 layout.label(text=f"• {c}")
 
-        # Reset button + hint
         layout.operator("bigbrain.reset_defaults", text=t['reset'], icon='LOOP_BACK')
         layout.label(text="Ctrl+Shift+R")
+
+def register():
+    bpy.utils.register_class(BigBrainPreferences)
+
+def unregister():
+    bpy.utils.unregister_class(BigBrainPreferences)

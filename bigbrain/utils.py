@@ -1,45 +1,66 @@
 # =============================================================================
-# BigBrain — Utilities: conflict detection, reset operator & RAM status.
+# Utilities: logging, conflict detection, reset operator, clear logs, log viewer, RAM status
 # =============================================================================
 
 import bpy
-import resource  # Unix-only; on Windows this will fail, so we catch it.
 
 conflicts = []
+log_entries = []
 _timer = None
+addon_keymaps = []
+
+def log(message):
+    log_entries.append(message)
 
 def detect_conflicts():
-    prefs = bpy.context.preferences.addons
     found = []
-    for name, mod in prefs.items():
-        if name == "bigbrain": continue
-        ap = mod.preferences
-        if hasattr(ap, "undo_steps") or hasattr(ap, "undo_memory_limit"):
+    for name, mod in bpy.context.preferences.addons.items():
+        if name != "bigbrain" and hasattr(mod.preferences, "undo_steps"):
             found.append(name)
+    log(f"Conflict detection found: {found}")
     return found
 
 class BIGBRAIN_OT_ResetDefaults(bpy.types.Operator):
     bl_idname = "bigbrain.reset_defaults"
-    bl_label = "BigBrain Reset"
+    bl_label = "Reset Default Settings"
 
     def execute(self, context):
         prefs = context.preferences.addons["bigbrain"].preferences
-        props = BigBrainPreferences.bl_rna.properties
-        prefs.undo_steps        = props['undo_steps'].default
-        prefs.undo_memory_limit = props['undo_memory_limit'].default
-        prefs.language          = props['language'].default
-        self.report({'INFO'}, "BigBrain settings reset")
-        return {'FINISHED'}
+        props = type(prefs).bl_rna.properties
+        prefs.undo_steps = props["undo_steps"].default
+        prefs.undo_memory_limit = props["undo_memory_limit"].default
+        prefs.language = props["language"].default
+        log("Settings reset to default")
+        self.report({"INFO"}, "BigBrain settings reset")
+        return {"FINISHED"}
+
+class BIGBRAIN_OT_ClearLogs(bpy.types.Operator):
+    bl_idname = "bigbrain.clear_logs"
+    bl_label = "Clear Logs"
+
+    def execute(self, context):
+        log_entries.clear()
+        self.report({"INFO"}, "BigBrain logs cleared")
+        return {"FINISHED"}
+
+class BIGBRAIN_PT_LogViewer(bpy.types.Panel):
+    bl_label = "BigBrain Logs"
+    bl_idname = "BIGBRAIN_PT_log_viewer"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'BigBrain'
+
+    def draw(self, context):
+        layout = self.layout
+        for entry in log_entries[-20:]:
+            layout.label(text=entry)
+        layout.operator("bigbrain.clear_logs")
 
 def _ram_status_callback():
-    used = 0.0
-    try:
-        used = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
-    except Exception:
-        pass
-    wm = bpy.context.window_manager
-    wm.status_text_set(f"BigBrain RAM: {used:.1f} MB")
-    return 1.0  # repeat every second
+    stats = bpy.app.memory_statistics()
+    used = stats.get("mem_in_use", 0) / (1024*1024)
+    bpy.context.window_manager.status_text_set(f"BigBrain RAM: {used:.1f} MB")
+    return 1.0
 
 def start_ram_status():
     global _timer
@@ -52,22 +73,26 @@ def stop_ram_status():
         bpy.app.timers.unregister(_ram_status_callback)
         _timer = None
 
-addon_keymaps = []
-
 def register():
-    from .preferences import BigBrainPreferences
     bpy.utils.register_class(BIGBRAIN_OT_ResetDefaults)
-    # keymap
+    bpy.utils.register_class(BIGBRAIN_OT_ClearLogs)
+    bpy.utils.register_class(BIGBRAIN_PT_LogViewer)
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:
         km = kc.keymaps.new(name='Window', space_type='EMPTY')
-        kmi = km.keymap_items.new("bigbrain.reset_defaults",
-                                  type='R', value='PRESS', ctrl=True, shift=True)
+        kmi = km.keymap_items.new(
+            "bigbrain.reset_defaults", type='R', value='PRESS', ctrl=True, shift=True
+        )
         addon_keymaps.append((km, kmi))
+    log("Utils registered")
 
 def unregister():
+    stop_ram_status()
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
+    bpy.utils.unregister_class(BIGBRAIN_PT_LogViewer)
+    bpy.utils.unregister_class(BIGBRAIN_OT_ClearLogs)
     bpy.utils.unregister_class(BIGBRAIN_OT_ResetDefaults)
+    log("Utils unregistered")

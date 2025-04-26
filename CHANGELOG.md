@@ -1,22 +1,25 @@
 # Changelog
 
-## [1.1.1] – 2025-04-27
+## [1.1.2] – 2025-04-27
 ### Fixed
-- Removed invalid `conflicts: list[str]` annotation to prevent console errors.
-- Ensured all Python imports (`resource`) are caught to avoid crashes.
-- Proper keymap registration/unregistration.
-- Verified multilanguage, conflict detection, reset button all draw in UI.
-- Implemented live RAM status via `bpy.app.timers` → status bar.
+- Removed `resource` import; now uses `bpy.app.memory_statistics`
+- Eliminated console errors on Windows
+- Ensured all classes register/unregister cleanly
 
 ### Added
-- None — bug-fix release.
+- Log viewer panel (3D View → Sidebar → BigBrain)
+- Clear logs operator
+- All log messages captured and viewable
+- RAM status in status bar via timer callback
+
+## [1.1.1] – 2025-04-27
+- Hotfix: fixed operators, i18n, status bar timer
 
 ## [1.1.0] – 2025-04-26
-- Live RAM graph **in prefs** (replaced by status bar in 1.1.1).
-- i18n (EN/PT/ES), conflict detection, reset button + keymap, version check.
+- RAM graph, i18n, conflict detection, reset button, version check
 
 ## [1.0.1] – 2025-04-25
-- API mismatch fix (`preferences.edit`), error handling, version badge.
+- API mismatch fix, error handling
 
 ## [1.0.0] – 2025-04-24
-- Initial unlimited undo addon.
+- Initial release
