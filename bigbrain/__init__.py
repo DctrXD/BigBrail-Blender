@@ -1,23 +1,23 @@
 # =============================================================================
 # BigBrain Addon for Blender
 # Author: github@DctrXD
-# Version: 1.1.2
+# Version: 1.2.3
 # Supported: Blender 2.93+ (tested on 3.x, 4.x)
 # =============================================================================
 
 bl_info = {
     "name": "BigBrain",
     "author": "github@DctrXD",
-    "version": (1, 1, 2),
+    "version": (1, 2, 3),
     "blender": (2, 93, 0),
-    "location": "Edit > Preferences > Add-ons",
-    "description": "Infinite undo + RAM status bar + log viewer + i18n + conflict detection + reset",
+    "location": "View3D Header & Sidebar",
+    "description": "Infinite undo + RAM status bar & overlay + log viewer + i18n + conflict detection + reset",
+    "warning": "",
     "doc_url": "https://github.com/DctrXD",
     "category": "System",
 }
 
-import importlib
-import bpy
+import importlib, bpy
 from . import config, preferences, utils
 
 modules = [config, preferences, utils]

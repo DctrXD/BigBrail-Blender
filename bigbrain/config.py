@@ -1,5 +1,5 @@
 # =============================================================================
-# Applies undo_steps & undo_memory_limit, and detects conflicts
+# config.py — Applies undo prefs & detects conflicts
 # =============================================================================
 
 import bpy

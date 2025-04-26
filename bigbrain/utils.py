@@ -1,5 +1,5 @@
 # =============================================================================
-# Utilities: logging, conflict detection, reset operator, clear logs, log viewer, RAM status
+# utils.py — logging, conflict detection, reset op, log viewer, header draw & RAM status
 # =============================================================================
 
 import bpy
@@ -9,29 +9,28 @@ log_entries = []
 _timer = None
 addon_keymaps = []
 
-def log(message):
-    log_entries.append(message)
+def log(msg):
+    log_entries.append(msg)
 
 def detect_conflicts():
     found = []
     for name, mod in bpy.context.preferences.addons.items():
         if name != "bigbrain" and hasattr(mod.preferences, "undo_steps"):
             found.append(name)
-    log(f"Conflict detection found: {found}")
+    log(f"Conflicts: {found}")
     return found
 
 class BIGBRAIN_OT_ResetDefaults(bpy.types.Operator):
     bl_idname = "bigbrain.reset_defaults"
-    bl_label = "Reset Default Settings"
+    bl_label = "BigBrain Reset"
 
     def execute(self, context):
         prefs = context.preferences.addons["bigbrain"].preferences
-        props = type(prefs).bl_rna.properties
-        prefs.undo_steps = props["undo_steps"].default
-        prefs.undo_memory_limit = props["undo_memory_limit"].default
-        prefs.language = props["language"].default
+        for prop in ["undo_steps","undo_memory_limit","status_delay","show_overlay","language"]:
+            default = type(prefs).bl_rna.properties[prop].default
+            setattr(prefs, prop, default)
         log("Settings reset to default")
-        self.report({"INFO"}, "BigBrain settings reset")
+        self.report({"INFO"},"BigBrain settings reset")
         return {"FINISHED"}
 
 class BIGBRAIN_OT_ClearLogs(bpy.types.Operator):
@@ -40,7 +39,7 @@ class BIGBRAIN_OT_ClearLogs(bpy.types.Operator):
 
     def execute(self, context):
         log_entries.clear()
-        self.report({"INFO"}, "BigBrain logs cleared")
+        self.report({"INFO"},"Logs cleared")
         return {"FINISHED"}
 
 class BIGBRAIN_PT_LogViewer(bpy.types.Panel):
@@ -54,13 +53,39 @@ class BIGBRAIN_PT_LogViewer(bpy.types.Panel):
         layout = self.layout
         for entry in log_entries[-20:]:
             layout.label(text=entry)
-        layout.operator("bigbrain.clear_logs")
+        layout.operator("bigbrain.clear_logs", icon='X')
+
+class BIGBRAIN_HT_Header(bpy.types.Header):
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'HEADER'
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="BB")
+        # live RAM
+        stats = bpy.app.memory_statistics()
+        used = stats.get("mem_in_use",0)/(1024*1024)
+        layout.label(text=f"{used:.1f}MB")
+        # overlay toggle button
+        layout.operator("bigbrain.toggle_overlay", text="", icon='HIDE_OFF')
+
+class BIGBRAIN_OT_ToggleOverlay(bpy.types.Operator):
+    bl_idname = "bigbrain.toggle_overlay"
+    bl_label = "Toggle RAM Overlay"
+
+    def execute(self, context):
+        prefs = context.preferences.addons["bigbrain"].preferences
+        prefs.show_overlay = not prefs.show_overlay
+        log(f"Overlay {'on' if prefs.show_overlay else 'off'}")
+        return {"FINISHED"}
 
 def _ram_status_callback():
+    prefs = bpy.context.preferences.addons["bigbrain"].preferences
     stats = bpy.app.memory_statistics()
-    used = stats.get("mem_in_use", 0) / (1024*1024)
+    used = stats.get("mem_in_use",0)/(1024*1024)
+    # status bar
     bpy.context.window_manager.status_text_set(f"BigBrain RAM: {used:.1f} MB")
-    return 1.0
+    return prefs.status_delay
 
 def start_ram_status():
     global _timer
@@ -74,25 +99,34 @@ def stop_ram_status():
         _timer = None
 
 def register():
-    bpy.utils.register_class(BIGBRAIN_OT_ResetDefaults)
-    bpy.utils.register_class(BIGBRAIN_OT_ClearLogs)
-    bpy.utils.register_class(BIGBRAIN_PT_LogViewer)
+    for cls in (
+        BIGBRAIN_OT_ResetDefaults,
+        BIGBRAIN_OT_ClearLogs,
+        BIGBRAIN_PT_LogViewer,
+        BIGBRAIN_HT_Header,
+        BIGBRAIN_OT_ToggleOverlay,
+    ):
+        bpy.utils.register_class(cls)
+    # keymap for reset
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
     if kc:
         km = kc.keymaps.new(name='Window', space_type='EMPTY')
-        kmi = km.keymap_items.new(
-            "bigbrain.reset_defaults", type='R', value='PRESS', ctrl=True, shift=True
-        )
-        addon_keymaps.append((km, kmi))
+        kmi = km.keymap_items.new("bigbrain.reset_defaults", 'R','PRESS', ctrl=True, shift=True)
+        addon_keymaps.append((km,kmi))
     log("Utils registered")
 
 def unregister():
     stop_ram_status()
-    for km, kmi in addon_keymaps:
+    for km,kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
-    bpy.utils.unregister_class(BIGBRAIN_PT_LogViewer)
-    bpy.utils.unregister_class(BIGBRAIN_OT_ClearLogs)
-    bpy.utils.unregister_class(BIGBRAIN_OT_ResetDefaults)
+    for cls in reversed([
+        BIGBRAIN_OT_ToggleOverlay,
+        BIGBRAIN_HT_Header,
+        BIGBRAIN_PT_LogViewer,
+        BIGBRAIN_OT_ClearLogs,
+        BIGBRAIN_OT_ResetDefaults,
+    ]):
+        bpy.utils.unregister_class(cls)
     log("Utils unregistered")
