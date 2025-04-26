@@ -1,103 +1,80 @@
 # =============================================================================
-# BigBrain — Preferences UI with RAM Graph, Multi-Lang & Reset Button
+# BigBrain — Preferences UI
+# Multilanguage, conflict warnings, reset button & version check.
 # =============================================================================
 
 import bpy
 from . import utils
 
-# Texts for multilanguage
 TEXTS = {
     'EN': {
-        'settings': "BigBrain Undo Settings",
+        'title': "BigBrain Settings",
         'undo_steps': "Undo Steps",
-        'undo_memory': "Memory Limit (MB)",
-        'ram_usage': "RAM Usage: {used:.1f} / {total:.1f} MB",
-        'conflict_warning': "⚠️ Conflict with other addons detected:",
-        'reset_button': "Reset to Default",
-        'reset_shortcut': "Shortcut: Ctrl+Shift+R",
-        'language': "Language",
+        'undo_memory': "Undo Memory Limit (MB)",
+        'version_warn': "⚠️ Blender version <2.93 may not be supported",
+        'conflict_warn': "⚠️ Conflicting addons detected:",
+        'reset': "Reset to Default",
+        'lang': "Language",
     },
     'PT': {
-        'settings': "Configurações do BigBrain",
+        'title': "Configurações BigBrain",
         'undo_steps': "Passos de Desfazer",
         'undo_memory': "Limite de Memória (MB)",
-        'ram_usage': "Uso de RAM: {used:.1f} / {total:.1f} MB",
-        'conflict_warning': "⚠️ Conflito detectado com outros addons:",
-        'reset_button': "Resetar Padrão",
-        'reset_shortcut': "Atalho: Ctrl+Shift+R",
-        'language': "Idioma",
+        'version_warn': "⚠️ Blender <2.93 pode não ser suportado",
+        'conflict_warn': "⚠️ Add-ons conflitantes:",
+        'reset': "Resetar Padrão",
+        'lang': "Idioma",
     },
     'ES': {
-        'settings': "Ajustes de BigBrain",
+        'title': "Ajustes BigBrain",
         'undo_steps': "Pasos de Deshacer",
         'undo_memory': "Límite de Memoria (MB)",
-        'ram_usage': "Uso de RAM: {used:.1f} / {total:.1f} MB",
-        'conflict_warning': "⚠️ Conflicto detectado con otros addons:",
-        'reset_button': "Restablecer Predeterminado",
-        'reset_shortcut': "Atajo: Ctrl+Shift+R",
-        'language': "Idioma",
+        'version_warn': "⚠️ Blender <2.93 puede no ser compatible",
+        'conflict_warn': "⚠️ Add-ons en conflicto:",
+        'reset': "Restablecer Predeterminado",
+        'lang': "Idioma",
     },
 }
 
 class BigBrainPreferences(bpy.types.AddonPreferences):
-    bl_idname = __package__
+    bl_idname = "bigbrain"
 
-    # Basic settings
     undo_steps: bpy.props.IntProperty(
         name="Undo Steps", default=512, min=32, max=10000
     )
     undo_memory_limit: bpy.props.IntProperty(
         name="Undo Memory Limit (MB)", default=0, min=0
     )
-    # Multilanguage selector
     language: bpy.props.EnumProperty(
         name="Language",
-        items=[
-            ('EN','English',''),
-            ('PT','Português',''),
-            ('ES','Español',''),
-        ],
+        items=[('EN','English',''),('PT','Português',''),('ES','Español','')],
         default='EN'
-    )
-    # Memory gauge (0.0–1.0)
-    memory_percent: bpy.props.FloatProperty(
-        name="RAM Usage %", default=0.0, min=0.0, max=1.0
     )
 
     def draw(self, context):
         t = TEXTS[self.language]
         layout = self.layout
 
-        # Section title
-        layout.label(text=t['settings'], icon='RECOVER_AUTO')
-        # Language choice
-        layout.prop(self, "language", text=t['language'])
+        # Title
+        layout.label(text=t['title'], icon='RECOVER_AUTO')
+
+        # Blender version check
+        if bpy.app.version < (2, 93, 0):
+            layout.label(text=t['version_warn'], icon='ERROR')
+
+        # Language selector
+        layout.prop(self, "language", text=t['lang'])
 
         # Undo settings
         layout.prop(self, "undo_steps", text=t['undo_steps'])
         layout.prop(self, "undo_memory_limit", text=t['undo_memory'])
 
-        # Real-time RAM usage
-        stats = bpy.app.memory_statistics()
-        used = stats.get('mem_in_use', 0) / (1024*1024)
-        total = stats.get('mem_limit', 1) / (1024*1024)
-        self.memory_percent = min(1.0, used / total)
-        layout.label(text=t['ram_usage'].format(used=used, total=total))
-        layout.template_progress_bar(self, "memory_percent")
-
         # Conflict warnings
         if utils.conflicts:
-            layout.label(text=t['conflict_warning'], icon='ERROR')
+            layout.label(text=t['conflict_warn'], icon='ERROR')
             for c in utils.conflicts:
                 layout.label(text=f"• {c}")
 
-        # Reset button + shortcut hint
-        layout.separator()
-        layout.operator("bigbrain.reset_defaults", text=t['reset_button'], icon='LOOP_BACK')
-        layout.label(text=t['reset_shortcut'])
-
-def register():
-    bpy.utils.register_class(BigBrainPreferences)
-
-def unregister():
-    bpy.utils.unregister_class(BigBrainPreferences)
+        # Reset button + hint
+        layout.operator("bigbrain.reset_defaults", text=t['reset'], icon='LOOP_BACK')
+        layout.label(text="Ctrl+Shift+R")

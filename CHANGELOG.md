@@ -1,21 +1,22 @@
 # Changelog
 
-## [1.1.0] – 2025-04-26
-### Added
-- Real-time RAM usage graph (progress bar) in prefs.
-- Multilanguage UI: English / Português / Español.
-- Conflict detection with other addons adjusting undo prefs.
-- Reset to Default button in UI + keymap (Ctrl+Shift+R).
-- Version validation on register (warn if Blender <2.93).
-
+## [1.1.1] – 2025-04-27
 ### Fixed
-- (–) No fixes; new features only.
+- Removed invalid `conflicts: list[str]` annotation to prevent console errors.
+- Ensured all Python imports (`resource`) are caught to avoid crashes.
+- Proper keymap registration/unregistration.
+- Verified multilanguage, conflict detection, reset button all draw in UI.
+- Implemented live RAM status via `bpy.app.timers` → status bar.
+
+### Added
+- None — bug-fix release.
+
+## [1.1.0] – 2025-04-26
+- Live RAM graph **in prefs** (replaced by status bar in 1.1.1).
+- i18n (EN/PT/ES), conflict detection, reset button + keymap, version check.
 
 ## [1.0.1] – 2025-04-25
-- Fixed API mismatch: use `preferences.edit`.
-- Robust error handling & Blender version badge.
-- UI shows detected Blender version.
+- API mismatch fix (`preferences.edit`), error handling, version badge.
 
-## [1.0.0] – initial release
-- Unlimited undo steps & memory via Blender Preferences.
-- Modular code: config, preferences, utils.
+## [1.0.0] – 2025-04-24
+- Initial unlimited undo addon.

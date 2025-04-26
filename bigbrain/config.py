@@ -1,35 +1,31 @@
 # =============================================================================
 # BigBrain — Configuration Logic & Conflict Detection
-# Applies undo settings reading from preferences.edit and
-# populates utils.conflicts list.
+# Applies undo settings reading from preferences.edit.
 # =============================================================================
 
 import bpy
 from . import utils
 
 def apply_undo_settings():
-    """🇬🇧 Safely apply undo settings. 🇧🇷 Aplica desfazer com segurança."""
+    """Apply undo_steps & undo_memory_limit safely."""
     prefs = bpy.context.preferences.edit
-    addon_prefs = bpy.context.preferences.addons[__package__].preferences
+    addon_prefs = bpy.context.preferences.addons["bigbrain"].preferences
 
-    # Undo Steps
     try:
         prefs.undo_steps = addon_prefs.undo_steps
     except Exception as e:
-        print(f"[BigBrain] Could not set undo_steps: {e}")
-
-    # Undo Memory Limit
+        print(f"[BigBrain] Failed to set undo_steps: {e}")
     try:
         prefs.undo_memory_limit = addon_prefs.undo_memory_limit
     except Exception as e:
-        print(f"[BigBrain] Could not set undo_memory_limit: {e}")
+        print(f"[BigBrain] Failed to set undo_memory_limit: {e}")
 
 def register():
-    # Detect conflicts at startup
+    # detect conflicts on startup
     try:
         utils.conflicts = utils.detect_conflicts()
     except Exception as e:
-        print(f"[BigBrain] Conflict detection failed: {e}")
+        print(f"[BigBrain] Conflict detection error: {e}")
 
 def unregister():
     pass
