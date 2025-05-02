@@ -1,8 +1,29 @@
+# Python cache files
 __pycache__/
 *.py[cod]
 *.so
+
+# Blender backup files
 *.blend1
 *.blend2
 *.blend@*
+
+# OS generated files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Log files
+*.log
+logs/
+reports/
+
+# Development files
+.vscode/
+.idea/
+*.sublime-*
+
+# Distribution files
+dist/
+build/
+*.zip

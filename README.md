@@ -1,54 +1,94 @@
-# 🧠 BigBrain v1.1.2 — Blender Addon  
-> Infinite undo + live RAM + log viewer + i18n + conflicts + reset
+# 🧠 BigBrain v2.0.0 — Advanced Memory Management for Blender
+
+A comprehensive memory management and diagnostics addon for Blender. Tested on Blender 2.93+ with special optimizations for 3.x and 4.x.
 
 ![Blender](https://img.shields.io/badge/Blender-2.93%2B-orange?logo=blender)
-![Version](https://img.shields.io/badge/version-1.1.2-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Author](https://img.shields.io/badge/author-github@DctrXD-black)
 
-## 🚀 What’s New in 1.1.2
+## 🚀 What's New in 2.0.0
 
-- Fixed missing `resource` import by using `bpy.app.memory_statistics`  
-- Live RAM status in the status bar (updates every 1 s)  
-- Fully working **Log Viewer** in 3D View → Sidebar → BigBrain  
-- Version check warns if Blender < 2.93  
-- Conflict detection lists other addons that tweak undo prefs  
-- Reset-to-Default button + Ctrl + Shift + R keymap  
+- 🔄 Full Blender 4.0+ compatibility
+- 📊 RAM usage graph with customizable dimensions
+- 🖥️ VRAM monitoring (when available)
+- ⚠️ Critical RAM usage warnings with sound alerts
+- 📋 Enhanced Log Viewer with export functionality
+- 🔍 System diagnostics and driver checks
+- 🛠️ Conflict detection and resolution
+- 🌐 Expanded i18n support (English, Português, Español)
+- 🔄 Auto-update checking
 
 ---
 
 ## 🧩 Features
 
-- Custom undo steps (32–10000)  
-- Configurable memory limit (0 = unlimited)  
-- Live RAM usage in status bar  
-- UI in English, Português or Español  
-- Automatic detection of conflicting addons  
-- One-click reset + shortcut  
-- In-Blender log viewer with clear button  
+- **Memory Management**
+  - Custom undo steps (32–10000)
+  - Configurable undo memory limit (MB)
+  - Live RAM monitoring in status bar & header
+  - Optional RAM graph overlay
+  - VRAM usage monitoring
+  - Critical RAM threshold warnings
+
+- **User Interface**
+  - "BB" indicator in 3D View header
+  - Toggle overlay button in header
+  - Compact/detailed display modes
+  - Customizable update frequency
+  - FPS display option
+
+- **Diagnostics & Logging**
+  - Comprehensive system information
+  - GPU driver status check
+  - Conflict detection with other addons
+  - Log viewer with filtering
+  - Log export functionality
+  - Python terminal in sidebar
+
+- **Internationalization**
+  - English, Português, and Español support
+  - Easily extensible translation system
+
+- **Utilities**
+  - One-click reset (Ctrl+Shift+R)
+  - Auto-update checking
+  - Blender 4.0+ compatibility mode
 
 ---
 
 ## 🎯 Compatibility
 
-🟢 **Blender 2.93+** (tested on 3.x & 4.x)  
-⚠️ Older versions may not support all features.
+🟢 **Blender 2.93+** (fully tested on 3.x & 4.x)  
+✅ Special optimizations for Blender 4.0+  
+⚠️ Older versions might lack some features
 
 ---
 
 ## 📦 Installation
 
-1. Clone or download this repo.  
-2. From project root:
-   ```bash
-   zip -r bigbrain.zip bigbrain
-   ```
-3. In Blender:  
-   `Edit > Preferences > Add-ons > Install...` → selecione `bigbrain.zip`  
-4. Ative **BigBrain** e configure em Preferences → Add-ons.
+```bash
+git clone https://github.com/DctrXD/BigBrain.git
+cd BigBrain
+zip -r bigbrain.zip bigbrain
+```
+
+In Blender:  
+`Edit > Preferences > Add-ons > Install…` → select `bigbrain.zip` → Activate the addon
+
+---
+
+## 🛠️ Usage
+
+1. **Memory Monitoring**: RAM usage is displayed in the status bar automatically
+2. **Header Controls**: Click "BB" in the 3D View header to toggle the overlay
+3. **Preferences**: Configure in Edit > Preferences > Add-ons > BigBrain
+4. **Log Viewer**: Access in the 3D View sidebar under the "BigBrain" tab
+5. **Diagnostics**: Run system checks via the "Diagnose" button in preferences
+6. **Reset**: Use the reset button or press Ctrl+Shift+R to restore defaults
 
 ---
 
 ## 🗒️ CHANGELOG
 
-Confira [CHANGELOG.md](CHANGELOG.md).
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
